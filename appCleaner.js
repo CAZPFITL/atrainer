@@ -1,10 +1,12 @@
 let r, g, b, W, H, colorByLabel, uid_bycount, users, DownloadData, labelX
 var appFire, dbFire, dbReference, errData, data, keys
+
 /**
  * Configuration size
  */
 labelX = 'red-ish'
 const scale = 50
+
 /**
  * Helpers
  */
@@ -16,11 +18,13 @@ const firebaseConfig = {
     messagingSenderId: "930703974581",
     appId: "1:930703974581:web:bc1046424d31729f135efc",
     measurementId: "G-1RGVF8Y3ND"
-};
+}
+
 const thisHouseIsCleanNow = () => {
     initializeDataSet() // clear data 
     loadDB() // Load Data Again
 }
+
 const drawSelect = () => {
     sel = createSelect();
     sel.position(8, (H));
@@ -36,12 +40,14 @@ const drawSelect = () => {
     sel.selected(labelX);
     sel.changed((e) => { labelX = e.target.value; thisHouseIsCleanNow(); })
 }
+
 const getButton = () => {
     button = createButton('Download Data')
     button.position(120, H)
     button.mouseReleased(() => saveJSON(DownloadData, 'colorData.json'))
 
 }
+
 const getSizes = () => {
     let colorSet = colorByLabel[labelX]
     
@@ -49,7 +55,7 @@ const getSizes = () => {
     Width = Math.trunc(Width / scale) * scale
 
     let Height = (colorSet.length - colorSet.length.toString().slice(-1)) / (Width / scale)
-    Height = (round(Height)) * scale
+    Height = (round(Height) + 1) * scale
     
     return [Width, Height]
 }
