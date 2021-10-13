@@ -23,3 +23,4 @@ const createTensor = () => {
     let xs = tf.tensor2d(colors)
     console.log(xs)
 }
+//test
