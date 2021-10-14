@@ -5,7 +5,7 @@ var appFire, dbFire, dbReference, errData, data, keys
  * Configuration size
  */
 labelX = 'red-ish'
-const scale = 50
+const scale = 30
 
 /**
  * Helpers
