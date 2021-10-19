@@ -1,7 +1,18 @@
+let r, g, b, W, H, colorByLabel, uid_bycount, users, DownloadData, labelX
 var appFire, dbFire, dbReference, errData, data, keys
-const scale = 20
-const W = 1000
-const H = 500
+if (1===1)  {
+    return;
+}
+
+/**
+ * Configuration size
+ */
+labelX = 'red-ish'
+const scale = 30
+
+/**
+ * Helpers
+ */
 const firebaseConfig = {
     apiKey: "AIzaSyALJK23uLX46X1wNR_lDJzdLEahoW7IEtU",
     authDomain: "color-data-a1f4c.firebaseapp.com",
@@ -10,72 +21,49 @@ const firebaseConfig = {
     messagingSenderId: "930703974581",
     appId: "1:930703974581:web:bc1046424d31729f135efc",
     measurementId: "G-1RGVF8Y3ND"
-};
-let colorByLabel = {
-    'red-ish': [],
-    'green-ish': [],
-    'blue-ish': [],
-    'orange-ish': [],
-    'yellow-ish': [],
-    'pink-ish': [],
-    'purple-ish': [],
-    'brown-ish': [],
-    'grey-ish': [],
-}
-let DownloadData = {
-    entries: []
-}
-let labelX = 'red-ish'
-let uid_bycount = {}
-let users = []
-let r, g, b
-
-function setup() {
-    createCanvas(W, H)
-    loadDB(firebaseConfig)
 }
 
-function loadDB() {
-    //Initialize Firebase
-    appFire = appFire ?? firebase.initializeApp(firebaseConfig)
-    dbFire = dbFire ?? firebase.database()
-    dbReference = dbReference ?? dbFire.ref('tone')
-    dbReference.once('value', gotData, errData)
-}
-
-function mousePressed() {
-    let i = floor(mouseX / scale)
-    let j = floor(mouseY / scale)
-    let index = i + j * (width / scale)
-    let data = colorByLabel[labelX]
-
-    if (mouseX < W && mouseY < H && data[index]) {
-        console.log(data[index])
-        if (confirm('Are you sure you want to delete this record from the database?')) {
-            let elementToRemove = firebase.database().ref(`tone/${data[index].key}`)
-
-            elementToRemove.remove()
-                .then(function () {
-                    console.log('wrong color deleted from the database.');
-                })
-                .catch(function (error) {
-                    console.log("Remove failed: " + error.message)
-                });
-
-        } else {
-            console.log('ok.');
-        }
-        thisHouseIsCleanNow()
-    }
-}
-
-function thisHouseIsCleanNow() {
-    restartPushedData() // clear data 
-    clear() // Clear canvas & html
+const thisHouseIsCleanNow = () => {
+    initializeDataSet() // clear data 
     loadDB() // Load Data Again
 }
 
-function restartPushedData() {
+const drawSelect = () => {
+    sel = createSelect();
+    sel.position(8, (H));
+    sel.option('red-ish');
+    sel.option('green-ish');
+    sel.option('blue-ish');
+    sel.option('orange-ish');
+    sel.option('yellow-ish');
+    sel.option('pink-ish');
+    sel.option('purple-ish');
+    sel.option('brown-ish');
+    sel.option('grey-ish');
+    sel.selected(labelX);
+    sel.changed((e) => { labelX = e.target.value; thisHouseIsCleanNow(); })
+}
+
+const getButton = () => {
+    button = createButton('Download Data')
+    button.position(120, H)
+    button.mouseReleased(() => saveJSON(DownloadData, 'colorData.json'))
+
+}
+
+const getSizes = () => {
+    let colorSet = colorByLabel[labelX]
+    
+    let Width = ((window.innerWidth - scale) - window.innerWidth.toString().slice(-1))
+    Width = Math.trunc(Width / scale) * scale
+
+    let Height = (colorSet.length - colorSet.length.toString().slice(-1)) / (Width / scale)
+    Height = (round(Height) + 1) * scale
+    
+    return [Width, Height]
+}
+
+const initializeDataSet = () => {
     colorByLabel = {
         'red-ish': [],
         'green-ish': [],
@@ -89,6 +77,31 @@ function restartPushedData() {
     }
     uid_bycount = {}
     users = []
+    DownloadData = {
+        entries: []
+    }
+}
+
+const loadDB = () => {
+    //Initialize Firebase
+    appFire = appFire ?? firebase.initializeApp(firebaseConfig)
+    dbFire = dbFire ?? firebase.database()
+    dbReference = dbReference ?? dbFire.ref('tone')
+    dbReference.once('value', gotData, errData)
+}
+
+const resizeMyCanvas = () => {
+    let sizes = getSizes()
+    let W = sizes[0]
+    let H = sizes[1]
+    resizeCanvas(W, H)
+}
+
+function setup() {
+    noCanvas()
+    createCanvas(window.innerWidth * .98, window.innerHeight)
+    noStroke()
+    thisHouseIsCleanNow()
 }
 
 function gotData(response) {
@@ -109,10 +122,39 @@ function gotData(response) {
             uid_bycount[id]++
         }
     }
+    clear() //clear canvas
+    resizeMyCanvas()
     drawData()
     writeData(keys)
     drawSelect()
     getButton()
+}
+
+function mousePressed() {
+    let sizes = getSizes()
+    let i = floor(mouseX / scale)
+    let j = floor(mouseY / scale)
+    let index = i + j * (sizes[0] / scale)
+    let data = colorByLabel[labelX]
+    if (mouseX < sizes[0] && mouseY < sizes[1] && data[index]) {
+        if (mouseX < sizes[0] &&     mouseY < sizes[1] && data[index]) {
+            if (confirm('Are you sure you want to delete this record from the database?')) {
+                let elementToRemove = firebase.database().ref(`tone/${data[index].key}`)
+
+                elementToRemove.remove()
+                    .then(function () {
+                        console.log('"wrong color" deleted from the database.');
+                    })
+                    .catch(function (error) {
+                        console.log("Remove failed: " + error.message)
+                    });
+
+            } else {
+                console.log('ok.');
+            }
+            thisHouseIsCleanNow()
+        }
+    }
 }
 
 function drawData() {
@@ -120,10 +162,13 @@ function drawData() {
     let x = 0
     let y = 0
     for (let index = 0; index < colorSet.length; index++) {
+
         noStroke()
         fill(colorSet[index].r, colorSet[index].g, colorSet[index].b)
         rect(x, y, scale, scale)
+        
         x += scale
+
         if (x >= width) {
             x = 0
             y += scale
@@ -138,7 +183,7 @@ function writeData(keys) {
             let outTag = document.createElement('div')
             outTag.id = 'data'
             outTag.innerHTML = htmlOutput
-            document.querySelector('body').append(outTag)
+            document.querySelector('main').append(outTag)
         } else {
             dom.innerHTML = htmlOutput
         }
@@ -152,29 +197,6 @@ function writeData(keys) {
         htmlOutput += id + ' <b>' + uid_bycount[id] + '</b><br>'
     }
 
-    htmlOutput += '</div>'
-    drawOutter(htmlOutput)
-}
-
-function drawSelect() {
-    sel = createSelect();
-    sel.position(0, (H));
-    sel.option('red-ish');
-    sel.option('green-ish');
-    sel.option('blue-ish');
-    sel.option('orange-ish');
-    sel.option('yellow-ish');
-    sel.option('pink-ish');
-    sel.option('purple-ish');
-    sel.option('brown-ish');
-    sel.option('grey-ish');
-    sel.selected(labelX);
-    sel.changed((e) => { labelX = e.target.value; thisHouseIsCleanNow(); })
-}
-
-function getButton() {
-    button = createButton('Download Data')
-    button.position(120, H)
-    button.mouseReleased(()=>saveJSON(DownloadData, 'colorData.json'))
-
+    htmlOutput += '</div>';
+    drawOutter(htmlOutput);
 }
