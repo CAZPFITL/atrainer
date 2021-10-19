@@ -86,7 +86,6 @@ const createModel = () => {
 }
 
 const optCompModel = () => {
-
     const lr = 0.2;
     const optimizer = tf.train.sgd(lr)
 
@@ -104,8 +103,10 @@ const trainModel = async () => {
         callbacks: {
             onTrainBegin: () => console.log('training model please wait...'),
             onTrainEnd: () => console.log('training completed'),
+            onBatchEnd: async(num, logs) => {
+                await tf.nextFrame()
+            },
             onEpochEnd: (num, logs) => {
-                // await tf.nextFrame()
                 console.log(`Epoch: ${num} \n Loss: ${logs.loss}`)
             }
             //onEpochStart: (num, log) => console.log('Epoch start'),
