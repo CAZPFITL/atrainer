@@ -1,5 +1,8 @@
 let r, g, b, W, H, colorByLabel, uid_bycount, users, DownloadData, labelX
 var appFire, dbFire, dbReference, errData, data, keys
+if (1===1)  {
+    return;
+}
 
 /**
  * Configuration size
@@ -135,21 +138,22 @@ function mousePressed() {
     let data = colorByLabel[labelX]
     if (mouseX < sizes[0] && mouseY < sizes[1] && data[index]) {
         if (mouseX < sizes[0] &&     mouseY < sizes[1] && data[index]) {
-        if (confirm('Are you sure you want to delete this record from the database?')) {
-            let elementToRemove = firebase.database().ref(`tone/${data[index].key}`)
+            if (confirm('Are you sure you want to delete this record from the database?')) {
+                let elementToRemove = firebase.database().ref(`tone/${data[index].key}`)
 
-            elementToRemove.remove()
-                .then(function () {
-                    console.log('"wrong color" deleted from the database.');
-                })
-                .catch(function (error) {
-                    console.log("Remove failed: " + error.message)
-                });
+                elementToRemove.remove()
+                    .then(function () {
+                        console.log('"wrong color" deleted from the database.');
+                    })
+                    .catch(function (error) {
+                        console.log("Remove failed: " + error.message)
+                    });
 
-        } else {
-            console.log('ok.');
+            } else {
+                console.log('ok.');
+            }
+            thisHouseIsCleanNow()
         }
-        thisHouseIsCleanNow()
     }
 }
 
@@ -158,11 +162,13 @@ function drawData() {
     let x = 0
     let y = 0
     for (let index = 0; index < colorSet.length; index++) {
+
         noStroke()
         fill(colorSet[index].r, colorSet[index].g, colorSet[index].b)
         rect(x, y, scale, scale)
+        
         x += scale
-        console.log(width)
+
         if (x >= width) {
             x = 0
             y += scale
@@ -191,6 +197,6 @@ function writeData(keys) {
         htmlOutput += id + ' <b>' + uid_bycount[id] + '</b><br>'
     }
 
-    htmlOutput += '</div>'
-    drawOutter(htmlOutput)
+    htmlOutput += '</div>';
+    drawOutter(htmlOutput);
 }
