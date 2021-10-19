@@ -48,23 +48,22 @@ const loadLoader = () => {
     outputMessage = createP('')
     outputLoss = createP('')
     totalTensors = createP('')
-
-    input = createFileInput(handleFile)
+    loadJSON('colorData.json', handleLoad)
 }
 
-const handleFile = (file) => {
-    data = file.data
+const handleLoad = (json) => {
+    data = json
     process()
 }
 
+const loadModel = async () => model = await tf.loadLayersModel('/atrainer/my-model.json')
+
 const process = () => {
     createTensor();
-    createModel()
-    optCompModel()
-    trainModel().then(results => {
-        console.log(results)
-        console.log(results.history.loss)
-    })
+    (async () => {
+        await loadModel()
+        console.log('model trained loaded')
+    })();
 }
 
 const createTensor = () => {
@@ -94,62 +93,6 @@ const createTensor = () => {
     // console.log(ys.shape)
     //xs.print()
     //ys.print()
-}
-
-const createModel = () => {
-    /**
-     * Model
-     */
-    model = tf.sequential()
-    let hidden = tf.layers.dense({
-        units: 9,
-        activation: 'sigmoid',
-        inputDim: 3
-    })
-
-    let output = tf.layers.dense({
-        units: 9,
-        activation: 'softmax'
-    })
-
-    model.add(hidden)
-    model.add(output)
-}
-
-const optCompModel = () => {
-    const lr = 0.2;
-    const optimizer = tf.train.sgd(lr)
-
-    model.compile({
-        optimizer: optimizer,
-        loss: 'categoricalCrossentropy'
-    })
-}
-
-const trainModel = async () => {
-    const options = {
-        epochs: _epochs_,
-        validationSplit: 0.1,
-        shuffle: true,
-        callbacks: {
-            onTrainBegin: () => {
-                console.log('training model please wait...')
-                outputMessage.html('training model please wait...')
-            },
-            onTrainEnd: async () => {
-                console.log('training completed')
-                await model.save('downloads://my-model');
-            },
-            onBatchEnd: () => tf.nextFrame(),
-            onEpochEnd: (num, logs) => {
-                console.log(`Epoch (Training #): ${num} \n Loss: ${logs.loss}`)
-                outputLoss.html(`Epoch (Training #): ${num} <br>Loss: ${logs.loss}`)
-            }
-            //onEpochStart: (num, log) => console.log('Epoch start'),
-        }
-    }
-
-    return await model.fit(xs, ys, options)
 }
 
 function draw() {
