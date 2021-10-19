@@ -1,8 +1,6 @@
 let r, g, b, W, H, colorByLabel, uid_bycount, users, DownloadData, labelX
 var appFire, dbFire, dbReference, errData, data, keys
-if (1===1)  {
-    return;
-}
+
 
 /**
  * Configuration size
