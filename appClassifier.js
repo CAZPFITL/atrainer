@@ -63,7 +63,7 @@ const handleFile = (file) => {
     process()
 }
 
-const loadModel = async () => model = await tf.loadLayersModel('my-model.json')
+const loadModel = async () => model = await tf.loadLayersModel('/atrainer/my-model.json')
 
 const process = () => {
     createTensor();
